@@ -1,5 +1,10 @@
 import csv
 with open('spendlor.csv', 'rb') as csvfile:
-     spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-     for row in spamreader:
-         print ', '.join(row)
+    fin = csv.reader(csvfile)
+    card_data =[row for row in fin]
+    for 
+
+
+
+
+
