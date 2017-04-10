@@ -25,11 +25,11 @@ class Card():
 class Player():
     def __init__(self, name):
         self.name =name
-        self.Coins = []
+        self.Coins = [0,0,0,0,0,0]
         self.Hands = []
         self.Covers = []
         self.Heros = []
-        self.Points = []
+        self.Points = 0
     def __str__ (self):
         res = []
         res.append("Name:" + self.name)
@@ -40,27 +40,32 @@ class Player():
         res.append("Point: " + str(self.Points))
         return str(res)
     
-    def take_coin (self,coin):
-        self.Coins = self.Coins + coin
+    def take_coin (self, coin):
+        self.Coins = [x+y for x, y in zip(coin, self.Coins)]
         if sum(self.Coins) > 10:
             print "The total Coins are more than 10 please return_coin(list) :"
-            print ", ".join(self.Coins)
+            print str(self.Coins)
             
             
-    def return_coin(self,coin):
-        temp = self.Coins - coin
-        Error_tag = 0
-        for i in temp:
-            if i < 0 :
-                Error_tag = 1
-                print " Coins < 0, please try again"
+    def return_coin (self, coin):
+        if len(coin) == 6:
+            Error_tag = 0
+        else:
+            Error_tag = 1
+            print "The coin items should be 6"
+        temp = [y-x for x, y in zip(coin, self.Coins)]
+        if min(temp) < 0 :
+            Error_tag = 1
+            print " Coins < 0, please try again"
         if Error_tag == 0 :
             self.Coins = temp
-        if sum() > 10 :
+        if sum(self.Coins) > 10 :
             print "The total Coins are more than 10 please return_coin(list) :"
-            print ", ".join(self.Coins)
+            print str(self.Coins)
+        return Error_tag
 
-#def take_card (self, card):
+#def buy_card (self, card):
+    
     
     
 
@@ -183,24 +188,58 @@ class Desk():
 
     def setup_table(self):
         for i in range(0,4):
-            peter_game.draw_card(0)
-            peter_game.draw_card(1)
-            peter_game.draw_card(2)
-        peter_game.setup_coin()
-        peter_game.setup_hero()
+            self.draw_card(0)
+            self.draw_card(1)
+            self.draw_card(2)
+        self.setup_coin()
+        self.setup_hero()
+
+    def take_coin (self, player, take_coins):
+        Error_tag = 0
+        take_coins.append(0)
+        ## the take coins need be 5
+        if len (take_coins) != 6:
+            Error_tag =1
+            print "Error: Take_coin len(coin) != 6"
+        elif sum(take_coins) > 3:
+            Error_tag =1
+            print "Error: You take more than 3 coins"
+        
+        ## table have no enough coins
+        temp = [y-x for x, y in zip(take_coins, self.Coins_on_table)]
+        if min (temp) < 0:
+            Error_tag =1
+            print "Error: Coin on table is less than you wannna take"
+        ## check if 1 item more than 2
+        elif max(take_coins) > 1:
+            if sum(take_coins) >2 :
+                Error_tag =1
+                print "Error: You cant take 3 coins and 2 from the same element"
+            elif self.Coins_on_table[take_coins.index(2)] < 4:
+                print "Error: The element you want take 2 is less than 4 coins on table"
+                Error_tag =1
+        
+        if Error_tag == 0:
+            self.Coins_on_table = [y-x for x, y in zip(take_coins, self.Coins_on_table)]
+            player.take_coin(take_coins)
+        return Error_tag
+
+    def return_coin (self, player, return_coins):
+        Error_tag =0
+        if min(return_coins) < 0:
+            print "Error: Cant return negative numbers coin"
+            Error_tag =1
+            return Error_tag
+        else :
+            self.Coins_on_table = [y+x for x, y in zip(return_coins, self.Coins_on_table)]
+            return player.return_coin(return_coins)
 
 
 
 
-peter_game =Desk()
-peter_game.shuffle()
-#peter_game.print_all()
 
-peter_game.setup_player("Peter")
-peter_game.setup_player("Sally")
-peter_game.setup_table()
-peter_game.print_table()
 
-peter_game.Players[0].take_coin([0,0,0,0,0,1])
-peter_game.print_table()
+
+
+
 
