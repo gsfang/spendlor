@@ -15,7 +15,7 @@ class Card():
         self.element = element
         self.point = point
     def __str__(self):
-            res = []#["No." + self.no ]
+            res = ["No." + str(self.no) ]
             #res.append("LVL: " + str(self.level))
             res.append("Ele: " + str(self.element))
             res.append("Pnt: " + str(self.point))
@@ -26,7 +26,7 @@ class Player():
     def __init__(self, name):
         self.name =name
         self.Coins = [0,0,0,0,0,0]
-        self.Hands = []
+        self.Cards = []
         self.Covers = []
         self.Heros = []
         self.Points = 0
@@ -34,9 +34,15 @@ class Player():
         res = []
         res.append("Name:" + self.name)
         res.append("Coins: " + str(self.Coins))
-        res.append("Hands: " + str(self.Hands))
-        res.append("Covers: " + str(self.Covers))
-        res.append("Heros: " + str(self.Heros))
+        res.append("Cards: " + str(self.cal_Ele()))
+        #for card in self.Cards:
+        #    res.append(str(card))
+        res.append("Covers: ")
+        for card in self.Covers:
+            res.append(str(card))
+        res.append("Heros: ")
+        for hero in self.Heros:
+            res.append(str(hero))
         res.append("Point: " + str(self.Points))
         return str(res)
     
@@ -66,7 +72,7 @@ class Player():
 
     def cal_Ele(self):
         resource = [0, 0, 0, 0, 0]
-        for card in self.Hands:
+        for card in self.Cards:
             if card.element == "White":
                 resource[0] += 1
             elif card.element == "Blue":
@@ -221,7 +227,7 @@ class Desk():
 
     def return_coin (self, player, return_coins):
         Error_tag =0
-        if len (return_coins) != 6:
+        if len(return_coins) != 6:
             Error_tag =1
             print "Error: Return_coin len(coin) != 6"
         
@@ -233,12 +239,12 @@ class Desk():
             self.Coins_on_table = [y+x for x, y in zip(return_coins, self.Coins_on_table)]
             return player.return_coin(return_coins)
 
-    def take_card (self, player, take_cards):
-        print 'player $s take %s ' % (str(player),str(take_cards))
+    def take_card (self, player, take_card):
+        print "*** ACT: %s take %s" % (player.name, take_card)
         Error_tag =0
         #test if the resource is enough?
         player.cal_Ele()
-        need_ele = [y-x for x, y in zip(player.cal_Ele() , take_cards.resource)]
+        need_ele = [y-x for x, y in zip(player.cal_Ele() , take_card.resource)]
         use_gold = 0
         for i in range(0,5):
             if need_ele[i] < 0:
@@ -247,15 +253,27 @@ class Desk():
                 continue
             else:
                 use_gold +=  player.Coins[i] - need_ele[i]
-        if use_gold > player.Coins[6] :
+        if use_gold < player.Coins[5] :
             Error_tag = 1
             print "There ara no enough coins, please retry"
-            print 'your coins : %s elements: %s , card needs : %s' $ ( str(player.Coins[i]), str(player.cal_Ele()), str(take_cards.resource))
+            print 'your coins : %s elements: %s , card needs : %s' % ( str(player.Coins), str(player.cal_Ele()), str(take_card.resource))
+            self.Cards_on_table[take_card.level-1].append(take_card)
         else :
-            self.return_coin (player, need_ele.append(use_gold))
-            player.Cards
+            need_ele.append(use_gold)
+            self.return_coin (player, need_ele)
+            player.Cards.append(take_card)
+            self.draw_card(take_card.level-1)
         return Error_tag
 
+def setup_game():
+
+    peter_game =Desk()
+    peter_game.shuffle()
+    #peter_game.print_all()
+
+    peter_game.setup_player("Peter")
+    peter_game.setup_player("Sally")
+    peter_game.setup_table()
          
 
                               
