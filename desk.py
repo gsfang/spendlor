@@ -62,12 +62,7 @@ class Player():
         if sum(self.Coins) > 10 :
             print "The total Coins are more than 10 please return_coin(list) :"
             print str(self.Coins)
-        return Error_tag
-
-#def buy_card (self, card):
-    
-    
-    
+        return Error_tag    
 
     def cal_Ele(self):
         resource = [0, 0, 0, 0, 0]
@@ -209,7 +204,7 @@ class Desk():
         temp = [y-x for x, y in zip(take_coins, self.Coins_on_table)]
         if min (temp) < 0:
             Error_tag =1
-            print "Error: Coin on table is less than you wannna take"
+            print "Error: Coin on table is less than you wanna take"
         ## check if 1 item more than 2
         elif max(take_coins) > 1:
             if sum(take_coins) >2 :
@@ -226,6 +221,10 @@ class Desk():
 
     def return_coin (self, player, return_coins):
         Error_tag =0
+        if len (return_coins) != 6:
+            Error_tag =1
+            print "Error: Return_coin len(coin) != 6"
+        
         if min(return_coins) < 0:
             print "Error: Cant return negative numbers coin"
             Error_tag =1
@@ -234,8 +233,32 @@ class Desk():
             self.Coins_on_table = [y+x for x, y in zip(return_coins, self.Coins_on_table)]
             return player.return_coin(return_coins)
 
+    def take_card (self, player, take_cards):
+        print 'player $s take %s ' % (str(player),str(take_cards))
+        Error_tag =0
+        #test if the resource is enough?
+        player.cal_Ele()
+        need_ele = [y-x for x, y in zip(player.cal_Ele() , take_cards.resource)]
+        use_gold = 0
+        for i in range(0,5):
+            if need_ele[i] < 0:
+                need_ele[i] = 0
+            if player.Coins[i] >= need_ele[i]:
+                continue
+            else:
+                use_gold +=  player.Coins[i] - need_ele[i]
+        if use_gold > player.Coins[6] :
+            Error_tag = 1
+            print "There ara no enough coins, please retry"
+            print 'your coins : %s elements: %s , card needs : %s' $ ( str(player.Coins[i]), str(player.cal_Ele()), str(take_cards.resource))
+        else :
+            self.return_coin (player, need_ele.append(use_gold))
+            player.Cards
+        return Error_tag
 
+         
 
+                              
 
 
 
