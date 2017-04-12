@@ -46,28 +46,14 @@ class Player():
         res.append("Point: " + str(self.Points))
         return str(res)
     
-    def take_coin (self, coin):
-        self.Coins = [x+y for x, y in zip(coin, self.Coins)]
-        if sum(self.Coins) > 10:
-            print "The total Coins are more than 10 please return_coin(list) :"
-            print str(self.Coins)
-            
-            
     def return_coin (self, coin):
-        if len(coin) == 6:
             Error_tag = 0
-        else:
-            Error_tag = 1
-            print "The coin items should be 6"
         temp = [y-x for x, y in zip(coin, self.Coins)]
         if min(temp) < 0 :
             Error_tag = 1
-            print " Coins < 0, please try again"
+            print " Coins are not enough"
         if Error_tag == 0 :
             self.Coins = temp
-        if sum(self.Coins) > 10 :
-            print "The total Coins are more than 10 please return_coin(list) :"
-            print str(self.Coins)
         return Error_tag    
 
     def cal_Ele(self):
@@ -194,7 +180,8 @@ class Desk():
             self.draw_card(2)
         self.setup_coin()
         self.setup_hero()
-
+###################    ACT   #######################
+### ACT 1 Take Coin
     def take_coin (self, player, take_coins):
         Error_tag = 0
         take_coins.append(0)
@@ -218,13 +205,14 @@ class Desk():
                 print "Error: You cant take 3 coins and 2 from the same element"
             elif self.Coins_on_table[take_coins.index(2)] < 4:
                 print "Error: The element you want take 2 is less than 4 coins on table"
-                Error_tag =1
-        
+                Error_tag =1 
         if Error_tag == 0:
             self.Coins_on_table = [y-x for x, y in zip(take_coins, self.Coins_on_table)]
-            player.take_coin(take_coins)
+            player.Coins = [x+y for x, y in zip(take_coins, player.Coins)]
         return Error_tag
 
+
+### Return Coin
     def return_coin (self, player, return_coins):
         Error_tag =0
         if len(return_coins) != 6:
@@ -234,11 +222,18 @@ class Desk():
         if min(return_coins) < 0:
             print "Error: Cant return negative numbers coin"
             Error_tag =1
-            return Error_tag
         else :
             self.Coins_on_table = [y+x for x, y in zip(return_coins, self.Coins_on_table)]
-            return player.return_coin(return_coins)
+            temp = [y-x for x, y in zip(return_coins, player.Coins)]
+            if min(temp) < 0 :
+                Error_tag = 1
+                print " Coins are not enough"
+            if Error_tag == 0 :
+                self.Coins = temp
+        return Error_tag
 
+
+### ACT 2 Take Card ###
     def take_card (self, player, take_card):
         print "*** ACT: %s take %s" % (player.name, take_card)
         Error_tag =0
@@ -252,10 +247,11 @@ class Desk():
             if player.Coins[i] >= need_ele[i]:
                 continue
             else:
-                use_gold +=  player.Coins[i] - need_ele[i]
-        if use_gold < player.Coins[5] :
+                use_gold += need_ele[i] - player.Coins[i]
+                need_ele[i] -= 1
+        if use_gold > player.Coins[5] :
             Error_tag = 1
-            print "There ara no enough coins, please retry"
+            print "There are no enough coins, please retry"
             print 'your coins : %s elements: %s , card needs : %s' % ( str(player.Coins), str(player.cal_Ele()), str(take_card.resource))
             self.Cards_on_table[take_card.level-1].append(take_card)
         else :
@@ -265,22 +261,12 @@ class Desk():
             self.draw_card(take_card.level-1)
         return Error_tag
 
-def setup_game():
-
-    peter_game =Desk()
-    peter_game.shuffle()
+def setup_game(obj):
+    obj.shuffle()
     #peter_game.print_all()
 
-    peter_game.setup_player("Peter")
-    peter_game.setup_player("Sally")
-    peter_game.setup_table()
-         
-
-                              
-
-
-
-
-
-
+    obj.setup_player("Peter")
+    obj.setup_player("Sally")
+    obj.setup_table()
+    obj.print_table()     
 
