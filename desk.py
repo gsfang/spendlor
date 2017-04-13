@@ -15,10 +15,16 @@ class Card():
         self.element = element
         self.point = point
     def __str__(self):
-            res = ["No." + str(self.no) ]
+            buff_no = str(self.no)
+            while len(buff_no)<4:
+                buff_no += " " 
+            res = ["No." + buff_no]    
             #res.append("LVL: " + str(self.level))
-            res.append("Ele: " + str(self.element))
-            res.append("Pnt: " + str(self.point))
+            buff = self.element
+            while len(buff)<6:
+                buff += " "
+            res.append("Ele: " + buff + "  ")
+            res.append("Pnt: " + str(self.point) + "   ")
             res.append("Res: " + str(self.resource))
             return ' '.join(res)
 
@@ -32,7 +38,7 @@ class Player():
         self.Points = 0
     def __str__ (self):
         res = []
-        res.append("Name:" + self.name)
+        res.append("Name: " + self.name)
         res.append("Coins: " + str(self.Coins))
         res.append("Cards: " + str(self.cal_Ele()))
         #for card in self.Cards:
@@ -43,7 +49,7 @@ class Player():
         res.append("Heros: ")
         for hero in self.Heros:
             res.append(str(hero))
-        res.append("Point: " + point())
+        res.append("Point: " + str(self.point()))
         return str(res)
     
     def cal_Ele(self):
@@ -65,7 +71,7 @@ class Player():
 
     def point(self):
         pnt = 0
-            for card in self.Cards:
+        for card in self.Cards:
                 pnt += card.point
         pnt += len(self.Heros)*3
         return pnt
@@ -127,28 +133,31 @@ class Desk():
         random.shuffle(self.Heros)
     
     def print_table(self):
-        print " lvl 1 Card on Table : "
+        print "============================================================="
+        print " "
+        print "-------------------- lvl 1 Card on Table --------------------"
         for card in self.Cards_on_table[0]:
             print card
         
-        print " lvl 2 Card on Table : "
+        print "-------------------- lvl 2 Card on Table --------------------"
         for card in self.Cards_on_table[1]:
             print card
 
-        print " lvl 3 Card on Table : "
+        print "-------------------- lvl 3 Card on Table --------------------"
         for card in self.Cards_on_table[2]:
             print card
 
-        print "Hero on table :"
+        print "--------------------    Hero on table    --------------------"
         for hero in self.Heros_on_table:
             print hero
 
-        print "Coin on table :"
+        print "----------------------  Coin on table -----------------------"
         print str(self.Coins_on_table)
 
-        print " Players :"
+        print "--------------------------- Players -------------------------"
         for player in self.Players:
             print player
+        print "============================================================="
     
     def setup_hero(self):
         for i in range(0, len(self.Players) + 1 ) :
@@ -157,7 +166,7 @@ class Desk():
     def draw_card(self, lvl):
         if len(self.Cards[lvl]):
             self.Cards_on_table[lvl].append(self.Cards[lvl].pop())
-        else :
+        elif len(self.Cards_on_table[lvl]) == 0 :
             print "Cards Pool are empty"
 
     def setup_player(self,name):
@@ -211,62 +220,139 @@ class Desk():
 
 
 ### Return Coin
-    def return_coin (self, player, return_coins):
+    def return_coin (self, player, coins):
         Error_tag =0
-        if len(return_coins) != 6:
+        if len(coins) != 6:
             Error_tag =1
             print "Error: Return_coin len(coin) != 6"
         
-        if min(return_coins) < 0:
+        if min(coins) < 0:
             print "Error: Cant return negative numbers coin"
             Error_tag =1
         else :
-            self.Coins_on_table = [y+x for x, y in zip(return_coins, self.Coins_on_table)]
-            temp = [y-x for x, y in zip(return_coins, player.Coins)]
+            self.Coins_on_table = [y+x for x, y in zip(coins, self.Coins_on_table)]
+            temp = [y-x for x, y in zip(coins, player.Coins)]
             if min(temp) < 0 :
                 Error_tag = 1
                 print " Coins are not enough"
             if Error_tag == 0 :
-                self.Coins = temp
+                player.Coins = temp
         return Error_tag
 
 
 ### ACT 2 Take Card ###
-    def take_card (self, player, take_card):
-        print "*** ACT: %s take %s" % (player.name, take_card)
+    def take_card (self, player, card):
+        print "*** ACT: %s take %s" % (player.name, card)
         Error_tag =0
         #test if the resource is enough?
-        player.cal_Ele()
-        need_ele = [y-x for x, y in zip(player.cal_Ele() , take_card.resource)]
+        need_ele = [y-x for x, y in zip(player.cal_Ele() , card.resource)]
         use_gold = 0
         for i in range(0,5):
             if need_ele[i] < 0:
                 need_ele[i] = 0
-            if player.Coins[i] >= need_ele[i]:
-                continue
-            else:
-                use_gold += need_ele[i] - player.Coins[i]
-                need_ele[i] -= 1
+            if player.Coins[i] < need_ele[i]:
+                insufficient = need_ele[i] - player.Coins[i]
+                use_gold += insufficient
+                need_ele[i] -= insufficient
         if use_gold > player.Coins[5] :
             Error_tag = 1
             print "There are no enough coins, please retry"
-            print 'your coins : %s elements: %s , card needs : %s' % ( str(player.Coins), str(player.cal_Ele()), str(take_card.resource))
-            self.Cards_on_table[take_card.level-1].append(take_card)
+            print 'your coins : %s elements: %s , card needs : %s' % ( str(player.Coins), str(player.cal_Ele()), str(card.resource))
+            self.Cards_on_table[card.level-1].append(card)
         else :
             need_ele.append(use_gold)
             self.return_coin (player, need_ele)
-            player.Cards.append(take_card)
-            self.draw_card(take_card.level-1)
+            player.Cards.append(card)
+            self.draw_card(card.level-1)
         return Error_tag
 
-    def cover_card (self, )
+### ACT 3 Cover card ###
+    def cover_card (self, player, card):
+        Error_tag = 0
+        # test player's covers
+        if len(player.Covers) >2 :
+            Error_tag =1
+            print "Error : you aready cover 3 cards"
+            self.Cards_on_table[card.level-1].append(card)
+        else :
+            player.Covers.append(card)
+            self.draw_card(card.level-1)
+            if self.Coins_on_table[5] > 0:
+                self.Coins_on_table[5] -= 1
+                player.Coins[5] += 1
+            else :
+                print "No golden coins"
+        return Error_tag
+## V ACT 
+    def take_hero (self, player, hero):
+        Error_tag = 0
+        resource = player.cal_Ele()
+        for i in range(0,5):
+            if resource[i] < hero.resource[i]:
+                Error_tag = 1
+                print "you can't take the hero"
+                self.Heros_on_table.append(hero)
+                break
+        if Error_tag == 0 :
+            player.Heros.append(hero)
 
+#### checker
+    def checker (self):
+        staus = 1 
+        # status = 1 system is OK 
+        # status = 0 Fatal Error will closed the game !!!
+        # status = 3 Someone over 15 point 
+        # status = 4 Need Return coins
+        ####### check coins on the desk  ##########
+        coins =[0,0,0,0,0,0]
+        golden_coins = [4,4,4,4,4,5]
+        for i in range(0,6):
+            for player in self.Players:
+                coins[i] += player.Coins[i]
+            coins[i] += self.Coin_on_table[i]
+        for coin, golden_coin in zip(coins,golden_coins):
+            if coin != golden_coin:
+                status = 0
+                print "[Fetal Error: Total Coins are not the same]"
+                print coins
+        
+        ####### check Cards #######
+        cards = 0
+        cards += len(self.Cards_on_table[0]) + len(self.Cards[0])
+        cards += len(self.Cards_on_table[1]) + len(self.Cards[1])
+        cards += len(self.Cards_on_table[2]) + len(self.Cards[2])
+        for player in self.Players:
+            cards += len(player.Cards)
+            cards += len(player.Covers)
+        if cards != 90 :
+            status = 0
+            print "[Fetal Error: Total Cards are not the same]"
+
+            #--- check Cards on table ---
+        for cards_t, cards in zip (self.Cards_on_table, self.Cards):
+            if len(cards_t) != 4:
+                if len(cards) != 0:
+                    status = 0
+                    print "[Fetal Error: there are not 4 cards on table]"  
+
+        ##### check 15pt #####
+
+        ##### check over coins ######
+        ##### check take Heros ######
+####
+            
+            
 def setup_game(obj):
     obj.shuffle()
-    #peter_game.print_all()
-
     obj.setup_player("Peter")
     obj.setup_player("Sally")
     obj.setup_table()
-    obj.print_table()     
+    obj.print_table()
 
+A=Desk()
+setup_game(A)
+Peter = A.Players[0]
+Sally = A.Players[1]
+LVL1 = A.Cards_on_table[0]
+LVL2 = A.Cards_on_table[1]
+LVL3 = A.Cards_on_table[2]
