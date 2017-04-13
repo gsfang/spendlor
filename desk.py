@@ -43,19 +43,9 @@ class Player():
         res.append("Heros: ")
         for hero in self.Heros:
             res.append(str(hero))
-        res.append("Point: " + str(self.Points))
+        res.append("Point: " + point())
         return str(res)
     
-    def return_coin (self, coin):
-            Error_tag = 0
-        temp = [y-x for x, y in zip(coin, self.Coins)]
-        if min(temp) < 0 :
-            Error_tag = 1
-            print " Coins are not enough"
-        if Error_tag == 0 :
-            self.Coins = temp
-        return Error_tag    
-
     def cal_Ele(self):
         resource = [0, 0, 0, 0, 0]
         for card in self.Cards:
@@ -72,6 +62,14 @@ class Player():
             else :
                 print "Error: Card's element not in list"
         return resource
+
+    def point(self):
+        pnt = 0
+            for card in self.Cards:
+                pnt += card.point
+        pnt += len(self.Heros)*3
+        return pnt
+
 
 class Desk():
     def __init__(self):
@@ -260,6 +258,8 @@ class Desk():
             player.Cards.append(take_card)
             self.draw_card(take_card.level-1)
         return Error_tag
+
+    def cover_card (self, )
 
 def setup_game(obj):
     obj.shuffle()
